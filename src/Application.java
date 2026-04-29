@@ -120,8 +120,6 @@ public class Application {
             Apartment ap = apartments.get((int) client.getId());
             ap.setClients(List.of(client));
             ap.setReservationStatus(ReservationStatus.RESERVED);
-            System.out.println(ap);
-            System.out.println(client);
         }
     }
 }

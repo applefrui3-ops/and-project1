@@ -35,6 +35,12 @@ jobs:
             https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent/1.15.11/byte-buddy-agent-1.15.11.jar
           curl -L -o lib/objenesis-3.3.jar \
             https://repo1.maven.org/maven2/org/objenesis/objenesis/3.3/objenesis-3.3.jar
+          curl -L -o lib/jackson-core-2.21.2.jar \
+            https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.21.2/jackson-core-2.21.2.jar
+          curl -L -o lib/jackson-databind-2.21.2.jar \
+            https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.21.2/jackson-databind-2.21.2.jar
+          curl -L -o lib/jackson-annotations-2.21.jar \
+            https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.21/jackson-annotations-2.21.jar
 
       - name: Compile production code
         run: |

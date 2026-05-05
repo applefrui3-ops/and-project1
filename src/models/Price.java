@@ -1,12 +1,18 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class Price {
     private final int value;
     private final Currency currency;
 
-    public Price(int value, Currency currency){
+
+    @JsonCreator
+    public Price(@JsonProperty("value") int value,
+                 @JsonProperty("currency") Currency currency){
         this.value = value;
         this.currency = currency;
     }

@@ -9,6 +9,10 @@ public class Apartment {
     private List<Client> clients;
     private ReservationStatus reservationStatus;
 
+    public Apartment(){
+
+    }
+
     public Apartment(long id, Price price, List<Client> clients, ReservationStatus reservationStatus){
         this.id = id;
         this.price = price;

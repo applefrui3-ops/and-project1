@@ -24,8 +24,8 @@ public class ClientServiceTest {
 
     @Test
     void givenClientsInRepository_whenFindAll_thenReturnsAllClients(){
-        Client client1 = new Client(1L, "User1", null);
-        Client client2 = new Client(2L, "User2", null);
+        Client client1 = new Client(1L, "User1");
+        Client client2 = new Client(2L, "User2");
         List<Client> clients = List.of(client1, client2);
 
         when(clientRepository.findAll()).thenReturn(clients);
@@ -51,7 +51,7 @@ public class ClientServiceTest {
     @Test
     void givenExistingId_whenFindById_thenReturnsClient(){
         long id = 1L;
-        Client client = new Client(id, "User",  null);
+        Client client = new Client(id, "User");
 
         when(clientRepository.findById(id)).thenReturn(Optional.of(client));
 
@@ -73,7 +73,7 @@ public class ClientServiceTest {
 
     @Test
     void givenClient_whenSaveClient_thenDelegatesToRepository(){
-        Client client = new Client(1L, "User", null);
+        Client client = new Client(1L, "User");
 
         clientService.saveClient(client);
 

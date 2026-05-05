@@ -107,9 +107,9 @@ public class Application {
 
     private Map<Long, Client> generateClients() {
         Map<Long, Client> map = new ConcurrentHashMap<>();
-            map.put((long)1, new Client(1, "Bob", null));
-            map.put((long)2, new Client(2, "John", null));
-            map.put((long)3, new Client(3, "Alex", null));
+            map.put((long)1, new Client(1, "Bob"));
+            map.put((long)2, new Client(2, "John"));
+            map.put((long)3, new Client(3, "Alex"));
         return map;
     }
 

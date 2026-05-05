@@ -5,12 +5,10 @@ import java.util.Objects;
 public class Client {
     private long id;
     private String name;
-    private Apartment apartment;
 
-    public Client(long id, String name, Apartment apartment){
+    public Client(long id, String name){
         this.id = id;
         this.name = name;
-        this.apartment = apartment;
     }
 
     public long getId() {
@@ -33,12 +31,12 @@ public class Client {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Client client = (Client) o;
-        return id == client.id && Objects.equals(name, client.name) && Objects.equals(apartment, client.apartment);
+        return id == client.id && Objects.equals(name, client.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, apartment);
+        return Objects.hash(id, name);
     }
 
     @Override
@@ -46,7 +44,6 @@ public class Client {
         return "Client{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", apartment=" + apartment +
                 '}';
     }
 }

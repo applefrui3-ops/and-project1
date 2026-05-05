@@ -1,6 +1,5 @@
 package services;
 
-import models.Apartment;
 import models.Client;
 import repositories.ClientRepository;
 

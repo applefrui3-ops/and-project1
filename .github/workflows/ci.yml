@@ -51,7 +51,7 @@ jobs:
       - name: Run tests
         run: |
           java -jar lib/junit-platform-console-standalone-1.10.0.jar \
-            --class-path out/production:out/test \
+            --class-path "out/production:out/test:lib/*" \
             --scan-class-path
 
 

@@ -39,12 +39,14 @@ jobs:
       - name: Compile production code
         run: |
           mkdir -p out/production
-          javac -d out/production -cp lib/* src/**/*.java
+          find src -name "*.java" > sources.txt
+          javac -d out/production -cp "lib/*" @sources.txt
 
       - name: Compile tests
         run: |
           mkdir -p out/test
-          javac -d out/test -cp lib/*:out/production test/**/*.java
+          find test -name "*.java" > test_sources.txt
+          javac -d out/test -cp "lib/*:out/production" @test_sources.txt
 
       - name: Run tests
         run: |

@@ -22,44 +22,8 @@ jobs:
           java-version: '23'
           distribution: 'oracle'
 
-      - name: Download dependencies
-        run: |
-          mkdir -p lib
-          curl -L -o lib/junit-platform-console-standalone-1.10.0.jar \
-            https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar
-          curl -L -o lib/mockito-core-5.7.0.jar \
-            https://repo1.maven.org/maven2/org/mockito/mockito-core/5.7.0/mockito-core-5.7.0.jar
-          curl -L -o lib/byte-buddy-1.15.11.jar \
-            https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy/1.15.11/byte-buddy-1.15.11.jar
-          curl -L -o lib/byte-buddy-agent-1.15.11.jar \
-            https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent/1.15.11/byte-buddy-agent-1.15.11.jar
-          curl -L -o lib/objenesis-3.3.jar \
-            https://repo1.maven.org/maven2/org/objenesis/objenesis/3.3/objenesis-3.3.jar
-          curl -L -o lib/jackson-core-2.21.2.jar \
-            https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.21.2/jackson-core-2.21.2.jar
-          curl -L -o lib/jackson-databind-2.21.2.jar \
-            https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.21.2/jackson-databind-2.21.2.jar
-          curl -L -o lib/jackson-annotations-2.21.jar \
-            https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.21/jackson-annotations-2.21.jar
-
-      - name: Compile production code
-        run: |
-          mkdir -p out/production
-          find src -name "*.java" > sources.txt
-          javac -d out/production -cp "lib/*" @sources.txt
-
-      - name: Compile tests
-        run: |
-          mkdir -p out/test
-          find test -name "*.java" > test_sources.txt
-          javac -d out/test -cp "lib/*:out/production" @test_sources.txt
-
       - name: Run tests
-        run: |
-          java \
-            -cp "out/production:out/test:lib/*" \
-            org.junit.platform.console.ConsoleLauncher \
-            --scan-class-path
+        run: mvn test
 
 
   build:
@@ -76,22 +40,11 @@ jobs:
           java-version: '23'
           distribution: 'oracle'
 
-      - name: Compile
-        run: |
-          mkdir -p out
-          javac -d out -cp lib/* src/**/*.java
-
-      - name: Create manifest
-        run: |
-          echo "Main-Class: Main" > out/MANIFEST.MF
-
-      - name: Package jar
-        run: |
-          cd out
-          jar cfm ../hotel.jar MANIFEST.MF *.class */*.class
+      - name: Build jar
+        run: mvn package -DskipTests
 
       - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
           name: hotel-app
-          path: hotel.jar
+          path: target/hotel-1.0-SNAPSHOT.jar

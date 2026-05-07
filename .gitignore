@@ -55,6 +55,9 @@ bin/
 hs_err_pid*
 replay_pid*
 
+# Maven
+target/
+
 # Included jar libraries folder
 lib/
 

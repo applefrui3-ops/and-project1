@@ -14,8 +14,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
-import java.io.File;
-
 public class ServletInitializer implements ServletContextListener {
 
     private final String SERIALIZED_APARTMENTS_PATH;
@@ -47,14 +45,6 @@ public class ServletInitializer implements ServletContextListener {
 
         ApartmentRepository apartmentRepository = new JsonApartmentRepository(SERIALIZED_APARTMENTS_PATH);
         apartmentService = new ApartmentService(apartmentRepository);
-
-        // Что видит Java как "текущую директорию"
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
-        System.out.println("Working dir: " + new File(".").getAbsolutePath());
-
-// Где реально лежат классы
-        System.out.println("Classes: " + getClass().getResource("/"));
-        System.out.println("Classes: " + getClass().getResource("/json/"));
     }
 
     @Override

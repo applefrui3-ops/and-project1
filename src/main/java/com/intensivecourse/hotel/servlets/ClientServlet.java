@@ -5,6 +5,7 @@ import com.intensivecourse.hotel.services.ClientService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 
 public class ClientServlet extends BaseServlet {

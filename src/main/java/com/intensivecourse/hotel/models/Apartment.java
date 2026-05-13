@@ -1,16 +1,32 @@
 package com.intensivecourse.hotel.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Objects;
 
 public class Apartment {
     private long id;
     private Price price;
+    @JsonIgnoreProperties("apartment")
     private List<Client> clients;
     private ReservationStatus reservationStatus;
 
     public Apartment(){
 
+    }
+
+    public Apartment(long id){
+        this.id = id;
+    }
+
+    public Apartment(long id, Price price, ReservationStatus reservationStatus){
+        this.id = id;
+        this.price = price;
+        this.reservationStatus = reservationStatus;
     }
 
     public Apartment(long id, Price price, List<Client> clients, ReservationStatus reservationStatus){

@@ -19,16 +19,15 @@ public class ApartmentServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pathInfo = req.getPathInfo();
-        resp.setHeader("Cache-Control", "public, max-age=3600");
+        resp.setHeader("Cache-Control", "no-cache");
         try {
             if (pathInfo == null || pathInfo.equals("/")) {
-                sendJson(resp, apartmentService.findAll(), 200);
+                sendJson(resp, this.apartmentService.findAll(), 200);
             } else {
                 long id = parseId(pathInfo);
-                sendJson(resp, apartmentService.findById(id), 200);
+                sendJson(resp, this.apartmentService.findById(id), 200);
             }
         } catch (IllegalArgumentException e) {
-            resp.setHeader("Cache-Control", "no-cache");
             sendError(resp, e.getMessage(), 404);
         }
     }
@@ -37,7 +36,7 @@ public class ApartmentServlet extends BaseServlet {
         resp.setHeader("Cache-Control", "no-cache");
         try {
             Apartment apartment = mapper.readValue(req.getReader(), Apartment.class);
-            apartmentService.saveApartment(apartment);
+            this.apartmentService.saveApartment(apartment);
             sendJson(resp, apartment, 201);
         } catch (Exception e) {
             sendError(resp, e.getMessage(), 400);
@@ -48,7 +47,7 @@ public class ApartmentServlet extends BaseServlet {
         resp.setHeader("Cache-Control", "no-cache");
         try {
             long id = parseId(req.getPathInfo());
-            apartmentService.deleteById(id);
+            this.apartmentService.deleteById(id);
             sendJson(resp, "Deleted", 204);
         } catch (Exception e) {
             sendError(resp, e.getMessage(), 404);

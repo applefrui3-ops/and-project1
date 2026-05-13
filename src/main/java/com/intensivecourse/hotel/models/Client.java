@@ -1,18 +1,44 @@
 package com.intensivecourse.hotel.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Client {
     private long id;
     private String name;
 
-    public Client(){
+
+    private Apartment apartment;
+
+    public Client() {
 
     }
 
-    public Client(long id, String name){
+    public Client(String name) {
+        this.name = name;
+    }
+
+    public Client(long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Client(String name, Apartment apartment) {
+        this.name = name;
+        this.apartment = apartment;
+    }
+
+    public Client(
+            long id,
+            String name,
+            Apartment apartment) {
+        this.id = id;
+        this.name = name;
+        this.apartment = apartment;
     }
 
     public long getId() {
@@ -29,6 +55,14 @@ public class Client {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Apartment getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(Apartment apartment) {
+        this.apartment = apartment;
     }
 
     @Override
@@ -48,6 +82,7 @@ public class Client {
         return "Client{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", apartment=" + apartment +
                 '}';
     }
 }

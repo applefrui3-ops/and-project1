@@ -8,9 +8,14 @@ import com.intensivecourse.hotel.repositories.*;
 import com.intensivecourse.hotel.services.ApartmentService;
 import com.intensivecourse.hotel.services.ClientService;
 import com.intensivecourse.hotel.util.DataGenerator;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServletInitializer implements ServletContextListener {
 
@@ -21,9 +26,11 @@ public class ServletInitializer implements ServletContextListener {
     private final ReservationStatus APARTMENT_BASE_STATUS;
     private final boolean CHANGE_APARTMENT_STATUS_ENABLED;
 
-    DataGenerator dataGenerator;
-    ClientService clientService;
-    ApartmentService apartmentService;
+    private final DataGenerator dataGenerator;
+    private final EntityManagerFactory emf;
+
+    private final ClientService clientService;
+    private final ApartmentService apartmentService;
 
 
     public ServletInitializer(){
@@ -37,6 +44,13 @@ public class ServletInitializer implements ServletContextListener {
         CHANGE_APARTMENT_STATUS_ENABLED = appConfig.getBoolProperty("apartment.status.change");
 
         dataGenerator = new DataGenerator(APARTMENT_BASE_PRICE, APARTMENT_BASE_CURRENCY, APARTMENT_BASE_STATUS);
+
+        Map<String, String> persistenceProps = new HashMap<>();
+        persistenceProps.put("jakarta.persistence.jdbc.url", appConfig.getProperty("db.url"));
+        persistenceProps.put("jakarta.persistence.jdbc.user", appConfig.getProperty("db.username"));
+        persistenceProps.put("jakarta.persistence.jdbc.password", appConfig.getProperty("db.password"));
+        persistenceProps.put("jakarta.persistence.jdbc.driver", appConfig.getProperty("db.driver.name"));
+        emf = Persistence.createEntityManagerFactory("hotelapp-pu", persistenceProps);
 
         ClientRepository clientRepository = new JdbcClientRepository();
         clientService = new ClientService(clientRepository);

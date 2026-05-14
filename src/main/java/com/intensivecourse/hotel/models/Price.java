@@ -2,13 +2,21 @@ package com.intensivecourse.hotel.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
+@Embeddable
 public class Price {
-    private final int value;
-    private final Currency currency;
+    @Column(name = "price_value")
+    private int value;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency")
+    private Currency currency;
 
+    public Price(){
+
+    }
 
     @JsonCreator
     public Price(@JsonProperty("value") int value,
@@ -21,8 +29,16 @@ public class Price {
         return value;
     }
 
+    public void setValue(int value) {
+        this.value = value;
+    }
+
     public Currency getCurrency() {
         return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
     @Override

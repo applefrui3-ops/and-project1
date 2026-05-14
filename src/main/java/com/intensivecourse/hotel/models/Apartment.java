@@ -4,32 +4,41 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Objects;
 
+@Entity
+@Table(name = "apartments")
 public class Apartment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Embedded
     private Price price;
     @JsonIgnoreProperties("apartment")
+    @OneToMany(mappedBy = "apartment", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private List<Client> clients;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reservation_status")
     private ReservationStatus reservationStatus;
 
-    public Apartment(){
+    public Apartment() {
 
     }
 
-    public Apartment(long id){
+    public Apartment(long id) {
         this.id = id;
     }
 
-    public Apartment(long id, Price price, ReservationStatus reservationStatus){
+    public Apartment(long id, Price price, ReservationStatus reservationStatus) {
         this.id = id;
         this.price = price;
         this.reservationStatus = reservationStatus;
     }
 
-    public Apartment(long id, Price price, List<Client> clients, ReservationStatus reservationStatus){
+    public Apartment(long id, Price price, List<Client> clients, ReservationStatus reservationStatus) {
         this.id = id;
         this.price = price;
         this.clients = clients;

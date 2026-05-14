@@ -3,15 +3,22 @@ package com.intensivecourse.hotel.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Objects;
-
+@Entity
+@Table(name = "clients")
 public class Client {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(name = "name")
     private String name;
 
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "apartment_id")
     private Apartment apartment;
 
     public Client() {

@@ -1,18 +1,13 @@
-package com.intensivecourse.hotel.services;
+package legacy.services;
 
 
 
 import com.intensivecourse.hotel.models.Client;
 import com.intensivecourse.hotel.repositories.ClientRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-
-@Service
-@Transactional
 public class ClientService {
     private final ClientRepository clientRepository;
 
@@ -20,19 +15,20 @@ public class ClientService {
         this.clientRepository = clientRepository;
     }
 
-    @Transactional(readOnly = true)
     public List<Client> findAll(){
         return this.clientRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public Client findById(long id){
-        return clientRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Client not found: " + id));
+        Optional<Client> optional = clientRepository.findById(id);
+        Client client = optional.orElseThrow(
+                () -> new IllegalArgumentException("The client with id: " + id + " is not found")
+        );
+        return client;
     }
 
-    public Client save(Client client){
-        return clientRepository.save(client);
+    public void saveClient(Client client){
+        clientRepository.save(client);
     }
 
     public void deleteById(long id){

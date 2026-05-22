@@ -1,17 +1,13 @@
-package com.intensivecourse.hotel.services;
+package legacy.services;
 
 
 
 import com.intensivecourse.hotel.models.Apartment;
 import com.intensivecourse.hotel.repositories.ApartmentRepository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-@Transactional
 public class ApartmentService {
     private final ApartmentRepository apartmentRepository;
 
@@ -19,19 +15,20 @@ public class ApartmentService {
         this.apartmentRepository = apartmentRepository;
     }
 
-    @Transactional(readOnly = true)
     public List<Apartment> findAll(){
         return apartmentRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public Apartment findById(long id) throws IllegalArgumentException{
-        return apartmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Apartment not found: " + id));
+        Optional<Apartment> optional = apartmentRepository.findById(id);
+        Apartment apartment = optional.orElseThrow(
+                () -> new IllegalArgumentException("The apartment with number: " + id + " not found")
+        );
+        return apartment;
     }
 
-    public Apartment save(Apartment apartment){
-        return apartmentRepository.save(apartment);
+    public void saveApartment(Apartment apartment){
+        apartmentRepository.save(apartment);
     }
 
     public void deleteById(long id){
@@ -43,7 +40,7 @@ public class ApartmentService {
     }
 
 
-    public String getApartmentStatus(long id){
+    public String getApartmentStatus(long id) throws IllegalArgumentException{
         return findById(id).getReservationStatus().name();
     }
 }

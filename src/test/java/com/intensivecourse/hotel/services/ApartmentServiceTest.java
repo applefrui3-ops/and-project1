@@ -5,6 +5,9 @@ import com.intensivecourse.hotel.models.ReservationStatus;
 import com.intensivecourse.hotel.repositories.ApartmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +17,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 class ApartmentServiceTest {
 
-    private ApartmentRepository apartmentRepository;
+    @MockitoBean
+    private ApartmentRepository repository;
+    @Autowired
     private ApartmentService apartmentService;
 
     @BeforeEach

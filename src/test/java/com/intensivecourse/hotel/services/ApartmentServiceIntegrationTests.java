@@ -5,7 +5,7 @@ import com.intensivecourse.hotel.models.Currency;
 import com.intensivecourse.hotel.models.ReservationStatus;
 import com.intensivecourse.hotel.repositories.ApartmentRepository;
 import com.intensivecourse.hotel.repositories.InMemoryApartmentRepository;
-import com.intensivecourse.hotel.util.DataGenerator;
+import legacy.util.DataGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

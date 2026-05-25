@@ -3,8 +3,11 @@ spring.datasource.username=username
 spring.datasource.password=password
 spring.datasource.hikari.maximum-pool-size=10
 
-spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+
+jwt.secret=dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IHRoYXQgaXMgYXQgbGVhc3QgMjU2IGJpdHMgbG9uZw==
+jwt.expiration=86400000
 
 apartment.base.price=50
 apartment.base.currency=BYN

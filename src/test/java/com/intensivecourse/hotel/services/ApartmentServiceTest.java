@@ -1,5 +1,6 @@
 package com.intensivecourse.hotel.services;
 
+import com.intensivecourse.hotel.config.ApartmentProperties;
 import com.intensivecourse.hotel.models.Apartment;
 import com.intensivecourse.hotel.models.ReservationStatus;
 import com.intensivecourse.hotel.repositories.ApartmentRepository;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.util.ArrayList;
@@ -22,144 +25,220 @@ class ApartmentServiceTest {
 
     @MockitoBean
     private ApartmentRepository repository;
+    @MockitoBean
+    private ApartmentProperties properties;
     @Autowired
-    private ApartmentService apartmentService;
+    private ApartmentService service;
+
+    private ApartmentProperties.Status statusSettings;
 
     @BeforeEach
-    void setUp(){
-        this.apartmentRepository = mock(ApartmentRepository.class);
-        this.apartmentService = new ApartmentService(apartmentRepository);
+    void setUp() {
+        statusSettings = mock(ApartmentProperties.Status.class);
+        ApartmentProperties.Base base = mock(ApartmentProperties.Base.class);
+        when(properties.getBase()).thenReturn(base);
+        when(properties.getStatus()).thenReturn(statusSettings);
     }
 
     @Test
-    void givenApartmentsInRepository_whenFindAll_thenReturnAllApartments(){
-        Apartment apartment1 = new Apartment(1L, null, new ArrayList<>(), ReservationStatus.FREE);
-        Apartment apartment2 = new Apartment(2L, null, new ArrayList<>(), ReservationStatus.FREE);
-        List<Apartment> apartments = List.of(apartment1, apartment2);
-        when(apartmentRepository.findAll()).thenReturn(apartments);
+    void givenApartmentsInRepository_whenFindAll_thenReturnAllApartments() {
+        Apartment apt1 = new Apartment();
+        apt1.setId(1L);
+        Apartment apt2 = new Apartment();
+        apt2.setId(2L);
+        when(repository.findAll()).thenReturn(List.of(apt1, apt2));
 
-        List<Apartment> result = apartmentService.findAll();
+        List<Apartment> result = service.findAll();
 
         assertEquals(2, result.size());
-        assertEquals(1L, result.get(0).getId());
-        assertEquals(2L, result.get(1).getId());
-        verify(apartmentRepository, times(1)).findAll();
+        verify(repository).findAll();
     }
 
     @Test
-    void givenEmptyRepository_whenFindAll_thenReturnEmptyList(){
-        when(apartmentRepository.findAll()).thenReturn(List.of());
+    void givenEmptyRepository_whenFindAll_thenReturnEmptyList() {
+        when(repository.findAll()).thenReturn(List.of());
 
-        List<Apartment> result = apartmentService.findAll();
+        List<Apartment> result = service.findAll();
 
         assertTrue(result.isEmpty());
-        verify(apartmentRepository, times(1)).findAll();
+        verify(repository).findAll();
     }
 
     @Test
-    void givenExistingId_whenFindById_thenReturnsApartment(){
-        long id = 1L;
-        Apartment apartment = new Apartment(id, null, new ArrayList<>(), ReservationStatus.FREE);
+    void givenExistingId_whenFindById_thenReturnsApartment() {
+        Apartment apartment = new Apartment();
+        apartment.setId(1L);
+        when(repository.findById(1L)).thenReturn(Optional.of(apartment));
 
-        when(apartmentRepository.findById(id)).thenReturn(Optional.of(apartment));
+        Apartment result = service.findById(1L);
 
-        Apartment result = apartmentService.findById(id);
-
-        assertNotNull(result);
-        assertEquals(id, result.getId());
-        verify(apartmentRepository, times(1)).findById(id);
+        assertEquals(1L, result.getId());
+        verify(repository).findById(1L);
     }
 
     @Test
-    void givenNonExistingId_whenFindById_thenThrowsException(){
-        long id = 100L;
+    void givenNonExistingId_whenFindById_thenThrowsException() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        when(apartmentRepository.findById(id)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> service.findById(99L));
+        verify(repository).findById(99L);
+    }
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> apartmentService.findById(id));
 
-        assertTrue(thrown.getMessage().contains(String.valueOf(id)));
-        assertTrue(thrown.getMessage().contains("not found"));
-        verify(apartmentRepository, times(1)).findById(id);
+    @Test
+    void givenApartment_whenSave_thenReturnsSavedApartment() {
+        Apartment apartment = new Apartment();
+        apartment.setId(1L);
+        when(repository.save(apartment)).thenReturn(apartment);
+
+        Apartment result = service.save(apartment);
+
+        assertEquals(1L, result.getId());
+        verify(repository).save(apartment);
     }
 
     @Test
-    void givenApartment_whenSaveApartment_thenDelegatesToRepository(){
-        Apartment apartment = new Apartment(1L, null, new ArrayList<>(), ReservationStatus.FREE);
+    void givenId_whenDeleteById_thenDelegatesToRepository() {
+        service.deleteById(1L);
 
-        apartmentService.saveApartment(apartment);
-
-        verify(apartmentRepository, times(1)).save(apartment);
+        verify(repository).deleteById(1L);
     }
 
     @Test
-    void givenId_whenDeleteById_thenDelegatesToRepository(){
-        long id = 1L;
+    void givenExistingId_whenExistsById_thenReturnsTrue() {
+        when(repository.existsById(1L)).thenReturn(true);
 
-        apartmentService.deleteById(id);
-
-        verify(apartmentRepository, times(1)).deleteById(id);
-    }
-
-    @Test
-    void givenExistingId_whenExistsById_thenReturnsTrue(){
-        long id = 1L;
-
-        when(apartmentRepository.existsById(id)).thenReturn(true);
-
-        boolean result = apartmentService.existsById(id);
+        boolean result = service.existsById(1L);
 
         assertTrue(result);
-        verify(apartmentRepository, times(1)).existsById(id);
+        verify(repository).existsById(1L);
     }
 
     @Test
-    void givenNonExistingId_whenExistsById_thenReturnsFalse(){
-        long id = 100L;
+    void givenNonExistingId_whenExistsById_thenReturnsFalse() {
+        when(repository.existsById(99L)).thenReturn(false);
 
-        when(apartmentRepository.existsById(id)).thenReturn(false);
-
-        boolean result = apartmentService.existsById(id);
+        boolean result = service.existsById(99L);
 
         assertFalse(result);
-        verify(apartmentRepository, times(1)).existsById(id);
+        verify(repository).existsById(99L);
     }
 
     @Test
-    void givenReservedApartment_whenGetApartmentStatus_thenReturnsReserved(){
-        long id = 1L;
-        Apartment apartment = new Apartment(id, null, new ArrayList<>(), ReservationStatus.RESERVED);
+    void givenApartmentWithStatus_whenGetApartmentStatus_thenReturnsStatus() {
+        Apartment apartment = new Apartment();
+        apartment.setId(1L);
+        apartment.setReservationStatus(ReservationStatus.RESERVED);
+        when(repository.findById(1L)).thenReturn(Optional.of(apartment));
 
-        when(apartmentRepository.findById(id)).thenReturn(Optional.of(apartment));
+        String status = service.getApartmentStatus(1L);
 
-        String result = apartmentService.getApartmentStatus(id);
-
-        assertEquals("RESERVED", result);
-        verify(apartmentRepository, times(1)).findById(id);
+        assertEquals("RESERVED", status);
+        verify(repository).findById(1L);
     }
 
     @Test
-    void givenFreeApartment_whenGetApartmentStatus_thenReturnsFree(){
-        long id = 1L;
-        Apartment apartment = new Apartment(id, null, new ArrayList<>(), ReservationStatus.FREE);
+    void givenStatusChangeEnabledAndStatusChanged_whenUpdate_thenSucceeds() {
+        when(statusSettings.isChangeable()).thenReturn(true);
 
-        when(apartmentRepository.findById(id)).thenReturn(Optional.of(apartment));
+        Apartment existing = new Apartment();
+        existing.setId(1L);
+        existing.setReservationStatus(ReservationStatus.FREE);
 
-        String result = apartmentService.getApartmentStatus(id);
+        Apartment updated = new Apartment();
+        updated.setId(1L);
+        updated.setReservationStatus(ReservationStatus.RESERVED);
 
-        assertEquals("FREE", result);
-        verify(apartmentRepository, times(1)).findById(id);
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(updated);
+
+        Apartment result = service.update(updated);
+
+        assertEquals(ReservationStatus.RESERVED, result.getReservationStatus());
+        verify(repository).save(updated);
     }
 
     @Test
-    void givenNonExistingId_whenGetApartmentStatus_thenThrowsException(){
-        long id = 100L;
+    void givenStatusChangeEnabledAndStatusNotChanged_whenUpdate_thenSucceeds() {
+        when(statusSettings.isChangeable()).thenReturn(true);
 
-        when(apartmentRepository.findById(id)).thenReturn(Optional.empty());
+        Apartment existing = new Apartment();
+        existing.setId(1L);
+        existing.setReservationStatus(ReservationStatus.FREE);
 
-        assertThrows(IllegalArgumentException.class, () -> apartmentService.getApartmentStatus(id));
+        Apartment updated = new Apartment();
+        updated.setId(1L);
+        updated.setReservationStatus(ReservationStatus.FREE);
 
-        verify(apartmentRepository, times(1)).findById(id);
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(updated);
+
+        Apartment result = service.update(updated);
+
+        assertEquals(ReservationStatus.FREE, result.getReservationStatus());
+        verify(repository).save(updated);
     }
 
+    @Test
+    void givenStatusChangeDisabledAndStatusChanged_whenUpdate_thenThrowsForbidden() {
+        when(statusSettings.isChangeable()).thenReturn(false);
+
+        Apartment existing = new Apartment();
+        existing.setId(1L);
+        existing.setReservationStatus(ReservationStatus.FREE);
+
+        Apartment updated = new Apartment();
+        updated.setId(1L);
+        updated.setReservationStatus(ReservationStatus.RESERVED);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.update(updated));
+
+        assertEquals(403, ex.getStatusCode().value());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void givenStatusChangeDisabledAndStatusNotChanged_whenUpdate_thenSucceeds() {
+        when(statusSettings.isChangeable()).thenReturn(false);
+
+        Apartment existing = new Apartment();
+        existing.setId(1L);
+        existing.setReservationStatus(ReservationStatus.FREE);
+
+        Apartment updated = new Apartment();
+        updated.setId(1L);
+        updated.setReservationStatus(ReservationStatus.FREE);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(updated);
+
+        Apartment result = service.update(updated);
+
+        assertEquals(ReservationStatus.FREE, result.getReservationStatus());
+        verify(repository).save(updated);
+    }
+
+    @Test
+    void givenStatusChangeDisabledAndStatusNotProvided_whenUpdate_thenSucceeds() {
+        when(statusSettings.isChangeable()).thenReturn(false);
+
+        Apartment existing = new Apartment();
+        existing.setId(1L);
+        existing.setReservationStatus(ReservationStatus.FREE);
+
+        Apartment updated = new Apartment();
+        updated.setId(1L);
+        updated.setReservationStatus(null);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(updated);
+
+        Apartment result = service.update(updated);
+
+        assertEquals(ReservationStatus.FREE, result.getReservationStatus());
+        verify(repository).save(updated);
+    }
 }

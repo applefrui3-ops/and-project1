@@ -1,6 +1,6 @@
 spring.datasource.url=jdbc:postgresql://localhost:5432/hotelapp
-spring.datasource.username=hotelapp_user
-spring.datasource.password=123
+spring.datasource.username=username
+spring.datasource.password=password
 spring.datasource.hikari.maximum-pool-size=10
 
 spring.jpa.hibernate.ddl-auto=validate
@@ -10,4 +10,3 @@ apartment.base.price=50
 apartment.base.currency=BYN
 apartment.base.status=FREE
 apartment.status.changeable=true
-

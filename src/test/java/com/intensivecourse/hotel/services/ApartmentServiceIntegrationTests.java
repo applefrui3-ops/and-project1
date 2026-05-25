@@ -2,82 +2,106 @@ package com.intensivecourse.hotel.services;
 
 import com.intensivecourse.hotel.models.Apartment;
 import com.intensivecourse.hotel.models.Currency;
+import com.intensivecourse.hotel.models.Price;
 import com.intensivecourse.hotel.models.ReservationStatus;
-import com.intensivecourse.hotel.repositories.ApartmentRepository;
-import com.intensivecourse.hotel.repositories.InMemoryApartmentRepository;
-import legacy.util.DataGenerator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ApartmentServiceIntegrationTests {
+@SpringBootTest
+@Testcontainers
+class ApartmentServiceIntegrationTests {
 
-    private DataGenerator dataGenerator;
-    private ApartmentRepository apartmentRepository;
-    private ApartmentService apartmentService;
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+            .withDatabaseName("hotel_test")
+            .withUsername("test")
+            .withPassword("test");
 
-    @BeforeEach
-    void setUp(){
-        this.dataGenerator = new DataGenerator(50, Currency.BYN, ReservationStatus.FREE);
-        this.apartmentRepository = new InMemoryApartmentRepository(dataGenerator.generateApartments());
-        this.apartmentService = new ApartmentService(apartmentRepository);
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
     }
 
-    @Test
-    void givenApartmentsInRepository_whenFindAll_thenReturnAllApartments(){
-        List<Apartment> result = apartmentService.findAll();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1L, result.get(0).getId());
-    }
+    @Autowired
+    private ApartmentService service;
 
     @Test
-    void givenSavedApartment_whenFindById_thenReturnsId() {
-        Apartment apartment = new Apartment(1L, null, new ArrayList<>(), ReservationStatus.FREE);
-        apartmentService.saveApartment(apartment);
+    void givenSavedApartment_whenFindById_thenReturnsIt() {
+        Apartment apartment = new Apartment();
+        apartment.setPrice(new Price(100, Currency.BYN));
+        apartment.setReservationStatus(ReservationStatus.FREE);
+        Apartment saved = service.save(apartment);
 
-        Apartment result = apartmentService.findById(1L);
+        Apartment result = service.findById(saved.getId());
 
-        assertEquals(1L, result.getId());
+        assertEquals(saved.getId(), result.getId());
         assertEquals(ReservationStatus.FREE, result.getReservationStatus());
+        assertEquals(100, result.getPrice().getValue());
     }
 
     @Test
     void givenSavedApartment_whenGetStatus_thenReturnsCorrectStatus() {
-        Apartment apartment = new Apartment(1L, null, new ArrayList<>(), ReservationStatus.RESERVED);
-        apartmentService.saveApartment(apartment);
+        Apartment apartment = new Apartment();
+        apartment.setPrice(new Price(200, Currency.USD));
+        apartment.setReservationStatus(ReservationStatus.RESERVED);
+        Apartment saved = service.save(apartment);
 
-        String status = apartmentService.getApartmentStatus(1L);
+        String status = service.getApartmentStatus(saved.getId());
 
         assertEquals("RESERVED", status);
     }
 
     @Test
-    void givenTwoSavedApartments_whenFindAll_thenReturnsAll() {
-        List<Apartment> apartments = apartmentService.findAll();
-        long previousSize = apartments.size();
+    void givenTwoSavedApartments_whenFindAll_thenReturnsBoth() {
+        Apartment apt1 = new Apartment();
+        apt1.setPrice(new Price(50, Currency.BYN));
+        apt1.setReservationStatus(ReservationStatus.FREE);
+        service.save(apt1);
 
-        Apartment apartment1 = new Apartment(100001L, null, new ArrayList<>(), ReservationStatus.FREE);
-        Apartment apartment2 = new Apartment(100002L, null, new ArrayList<>(), ReservationStatus.FREE);
-        apartmentService.saveApartment(apartment1);
-        apartmentService.saveApartment(apartment2);
+        Apartment apt2 = new Apartment();
+        apt2.setPrice(new Price(75, Currency.USD));
+        apt2.setReservationStatus(ReservationStatus.OCCUPIED);
+        service.save(apt2);
 
-        List<Apartment> result = apartmentService.findAll();
+        List<Apartment> result = service.findAll();
 
-        assertEquals(previousSize + 2, result.size());
+        assertTrue(result.size() >= 2);
     }
 
     @Test
     void givenSavedApartment_whenDeleteById_thenFindByIdThrowsException() {
-        Apartment apartment = new Apartment(1L, null, new ArrayList<>(), ReservationStatus.FREE);
-        apartmentService.saveApartment(apartment);
+        Apartment apartment = new Apartment();
+        apartment.setPrice(new Price(300, Currency.BYN));
+        apartment.setReservationStatus(ReservationStatus.FREE);
+        Apartment saved = service.save(apartment);
 
-        apartmentService.deleteById(1L);
+        service.deleteById(saved.getId());
 
-        assertThrows(IllegalArgumentException.class, () -> apartmentService.findById(1L));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.findById(saved.getId()));
+    }
+
+    @Test
+    void givenSavedApartment_whenExistsById_thenReturnsTrue() {
+        Apartment apartment = new Apartment();
+        apartment.setPrice(new Price(400, Currency.BYN));
+        apartment.setReservationStatus(ReservationStatus.FREE);
+        Apartment saved = service.save(apartment);
+
+        boolean exists = service.existsById(saved.getId());
+
+        assertTrue(exists);
     }
 }

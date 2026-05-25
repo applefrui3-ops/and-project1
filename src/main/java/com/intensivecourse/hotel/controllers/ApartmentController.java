@@ -36,7 +36,7 @@ public class ApartmentController {
     @PutMapping("/{id}")
     public Apartment update(@PathVariable Long id, @RequestBody Apartment apartment) {
         apartment.setId(id);
-        return apartmentService.save(apartment);
+        return apartmentService.update(apartment);
     }
 
     @DeleteMapping("/{id}")

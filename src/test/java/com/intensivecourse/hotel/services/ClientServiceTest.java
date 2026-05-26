@@ -3,9 +3,11 @@ package com.intensivecourse.hotel.services;
 import com.intensivecourse.hotel.models.Client;
 import com.intensivecourse.hotel.repositories.ClientRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -13,13 +15,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ClientServiceTest {
 
-    @MockitoBean
+    @Mock
     private ClientRepository repository;
 
-    @Autowired
+    @InjectMocks
     private ClientService service;
 
 

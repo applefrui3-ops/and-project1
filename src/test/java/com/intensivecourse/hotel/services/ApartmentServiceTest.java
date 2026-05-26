@@ -6,13 +6,13 @@ import com.intensivecourse.hotel.models.ReservationStatus;
 import com.intensivecourse.hotel.repositories.ApartmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,24 +20,27 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ApartmentServiceTest {
 
-    @MockitoBean
+    @Mock
     private ApartmentRepository repository;
-    @MockitoBean
+    @Mock
     private ApartmentProperties properties;
-    @Autowired
+    @Mock
+    private ApartmentProperties.Status statusSettings;
+    @Mock
+    private ApartmentProperties.Base base;
+
+    @InjectMocks
     private ApartmentService service;
 
-    private ApartmentProperties.Status statusSettings;
+
 
     @BeforeEach
     void setUp() {
-        statusSettings = mock(ApartmentProperties.Status.class);
-        ApartmentProperties.Base base = mock(ApartmentProperties.Base.class);
-        when(properties.getBase()).thenReturn(base);
-        when(properties.getStatus()).thenReturn(statusSettings);
+        lenient().when(properties.getBase()).thenReturn(base);
+        lenient().when(properties.getStatus()).thenReturn(statusSettings);
     }
 
     @Test
